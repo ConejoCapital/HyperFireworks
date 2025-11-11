@@ -174,7 +174,7 @@ function updateStats() {
     document.getElementById('total-volume').textContent = formatMoney(stats.totalVolume);
 }
 
-// Update timeline - CLICKABLE
+// Update timeline - CLICKABLE with music sync
 function updateTimeline(clickProgress = null) {
     if (!eventStartTime || events.length === 0) return;
     
@@ -186,16 +186,27 @@ function updateTimeline(clickProgress = null) {
         progress = clickProgress;
         // Jump to this position
         const targetTimestamp = startTimestamp + (endTimestamp - startTimestamp) * (clickProgress / 100);
+        
+        // Find the corresponding event index
         for (let i = 0; i < events.length; i++) {
             const eventTimestamp = new Date(events[i].timestamp).getTime();
             if (eventTimestamp >= targetTimestamp) {
                 currentEventIndex = i;
-                startTime = Date.now() - ((eventTimestamp - startTimestamp) / playbackSpeed);
                 
-                // Update audio position
+                // Calculate elapsed data time (seconds)
                 const elapsedDataTime = (eventTimestamp - startTimestamp) / 1000;
+                
+                // Calculate corresponding audio time
+                // Data time / playback speed = audio time
                 const targetAudioTime = elapsedDataTime / playbackSpeed;
-                audio.currentTime = Math.min(targetAudioTime, audio.duration);
+                
+                // Sync audio to this position
+                if (audio && !isNaN(audio.duration) && audio.duration > 0) {
+                    audio.currentTime = Math.min(targetAudioTime, audio.duration);
+                }
+                
+                // Update startTime to maintain sync
+                startTime = Date.now() - (elapsedDataTime * 1000 / playbackSpeed);
                 
                 break;
             }

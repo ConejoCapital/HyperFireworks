@@ -203,6 +203,28 @@
             pointer-events: none;
         }
 
+        #climax-marker {
+            position: absolute;
+            top: 0;
+            left: 22.8%; /* 164.3s / 720s = 22.8% */
+            width: 4px;
+            height: 100%;
+            background: #ffd700;
+            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        #climax-marker::before {
+            content: '💥';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            text-shadow: 0 0 5px #ffd700;
+        }
+
         #legend {
             position: absolute;
             top: 20px;
@@ -369,6 +391,15 @@
                 padding: 8px;
                 font-size: 0.8em;
             }
+
+            #climax-marker {
+                width: 3px;
+            }
+
+            #climax-marker::before {
+                font-size: 14px;
+                top: -22px;
+            }
         }
     </style>
 </head>
@@ -436,6 +467,7 @@
                 <span id="end-time">21:27:00</span>
             </div>
             <div id="timeline-bar">
+                <div id="climax-marker"></div>
                 <div id="timeline-progress"></div>
             </div>
         </div>
