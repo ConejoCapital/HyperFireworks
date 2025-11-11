@@ -14,10 +14,10 @@ let isPlaying = false;
 let isPaused = false;
 
 // OPTIMIZED: Reduced particle counts for mobile performance
-// Sync with 1812 Overture climax at 14:55 (895 seconds)
+// Sync with 1812 Overture climax at 15:28 (928 seconds) - THE MOST DRAMATIC MOMENT!
 const LARGEST_EVENT_DATA_TIME = 164.3; // seconds into the data
-const MUSIC_CLIMAX_TIME = 895; // seconds (14:55)
-const SYNC_SPEED = LARGEST_EVENT_DATA_TIME / MUSIC_CLIMAX_TIME; // ≈ 0.184x
+const MUSIC_CLIMAX_TIME = 928; // seconds (15:28)
+const SYNC_SPEED = LARGEST_EVENT_DATA_TIME / MUSIC_CLIMAX_TIME; // ≈ 0.177x
 let playbackSpeed = SYNC_SPEED;
 
 // Mobile detection
@@ -306,7 +306,23 @@ function autoStart() {
     console.log('Auto-starting visualization...');
     setTimeout(() => {
         startVisualization();
-    }, 1000); // Small delay to ensure everything is loaded
+        // Attempt to play music immediately
+        audio.play().then(() => {
+            console.log('Music started successfully!');
+        }).catch(e => {
+            console.log('Music autoplay blocked by browser. Adding click listener...');
+            // If autoplay fails, play on any user interaction
+            const playOnClick = () => {
+                audio.play().then(() => {
+                    console.log('Music started after user interaction!');
+                    document.removeEventListener('click', playOnClick);
+                    document.removeEventListener('touchstart', playOnClick);
+                }).catch(err => console.log('Audio play failed:', err));
+            };
+            document.addEventListener('click', playOnClick);
+            document.addEventListener('touchstart', playOnClick);
+        });
+    }, 500); // Reduced delay for faster start
 }
 
 // Start visualization

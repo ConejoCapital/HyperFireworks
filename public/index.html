@@ -133,7 +133,7 @@
 
         #controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 110px; /* Moved up to not overlap with timeline */
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
@@ -393,7 +393,7 @@
     </div>
 
     <!-- Background music: 1812 Overture -->
-    <audio id="bgmusic" preload="auto" loop>
+    <audio id="bgmusic" preload="auto" loop autoplay>
         <source src="1812.mp3" type="audio/mpeg">
     </audio>
 

@@ -57,8 +57,8 @@ Size varies logarithmically with the amount liquidated/ADL'd:
 ### 🎵 Musical Synchronization
 
 The visualization is synced with **Tchaikovsky's 1812 Overture**:
-- The music starts automatically with the visualization
-- The **largest liquidation** ($193M BTC) fires exactly at **14:55** during the dramatic cannon shots 🔥
+- The music starts automatically with the visualization (click anywhere if blocked by browser)
+- The **largest liquidation** ($193M BTC) fires exactly at **15:28** during the MOST dramatic moment 🔥💥
 - Music loops automatically when finished
 - Perfect dramatic timing for maximum impact!
 
@@ -179,7 +179,7 @@ HyperFireworks/
 - 🚀 Music-synced playback (1x, 2x, 5x, 10x)
 - 🎯 Heavily optimized particle system (50-70% reduction)
 - 📱 Fully mobile-optimized with touch support
-- 🎵 1812 Overture synchronized to largest event at 14:55
+- 🎵 1812 Overture synchronized to largest event at 15:28
 - ⚡ Auto-starts on page load
 - 👆 Clickable/touchable timeline navigation
 
