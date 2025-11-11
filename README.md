@@ -1,0 +1,286 @@
+# 🎆 HyperFireworks
+
+**Interactive Firework Visualization of the October 10, 2025 Hyperliquid Liquidation Cascade**
+
+A beautiful, real-time visualization of the largest documented DeFi liquidation event, showing 98,620 liquidations and auto-deleveraging (ADL) events as fireworks.
+
+🔗 **Live Demo**: [hyperfireworks.vercel.app](https://hyperfireworks.vercel.app)
+
+---
+
+## 📊 What This Visualizes
+
+**Event**: October 10, 2025, 21:15-21:27 UTC (12 minutes)  
+**Platform**: Hyperliquid L1 (Decentralized Perpetuals Exchange)  
+**Total Market Impact**: **$7.61 BILLION**
+
+### Event Breakdown
+
+| Type | Events | Volume | Description |
+|------|--------|--------|-------------|
+| **Liquidations** | 63,637 | $5.51B | Users hit liquidation prices |
+| **ADL (Auto-Deleveraging)** | 34,983 | $2.10B | Profitable positions force-closed |
+| **TOTAL** | **98,620** | **$7.61B** | Complete cascade impact |
+
+---
+
+## 🎨 Firework Color Legend
+
+### ADL Events
+- 🟢 **Green Fireworks**: ADL with positive PNL (profitable position closed)
+- 🔴 **Red Fireworks**: ADL with negative PNL (losing position closed)
+
+### Liquidation Events
+- 🟣 **Purple**: Mega liquidations (> $10M)
+- 🔴 **Red**: Large liquidations ($1M - $10M)
+- 🟠 **Orange**: Medium liquidations ($100K - $1M)
+- 🟡 **Gold**: Small liquidations (< $100K)
+
+### Firework Size
+Size varies logarithmically with the amount liquidated/ADL'd:
+- Larger amounts = Bigger, more particles
+- Smaller amounts = Smaller, fewer particles
+
+---
+
+## 🎮 Controls
+
+| Button | Function |
+|--------|----------|
+| 🚀 **Start** | Begin the visualization |
+| ⏸️ **Pause** | Pause/resume playback |
+| 🔄 **Reset** | Reset to beginning |
+| ⚡ **Speed** | Cycle through playback speeds (10x, 50x, 100x, 200x, 500x, 1000x) |
+
+---
+
+## 📈 Live Statistics
+
+The interface displays real-time stats:
+- **Events Fired**: Total fireworks launched
+- **Liquidations**: Number of liquidation events
+- **ADL Events**: Number of auto-deleveraging events
+- **Total Volume**: Cumulative $ amount
+- **Timeline**: Current position in the 12-minute event
+
+---
+
+## 🔬 Data Source
+
+**100% Blockchain-Verified Data**:
+- Source: Hyperliquid S3 buckets (`node_fills_20251010_21.lz4`)
+- All events explicitly labeled by the blockchain
+- No heuristics or estimations
+- Complete 12-minute dataset
+
+**Related Research**:
+- Full analysis: [HyperMultiAssetedADL](https://github.com/ConejoCapital/HyperMultiAssetedADL)
+- Position-level data: [HyperAnalyzeADL](https://github.com/ConejoCapital/HyperAnalyzeADL)
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+- Python 3.6+ (for data preparation)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+
+### Setup
+
+1. **Clone the repository**:
+```bash
+git clone https://github.com/ConejoCapital/HyperFireworks.git
+cd HyperFireworks
+```
+
+2. **Prepare the data** (if rebuilding):
+```bash
+python3 prepare_data.py
+```
+
+3. **Start local server**:
+```bash
+python3 -m http.server 8000 --directory public
+```
+
+4. **Open in browser**:
+```
+http://localhost:8000
+```
+
+---
+
+## 🌐 Deploying to Vercel
+
+This project is pre-configured for Vercel deployment:
+
+### Option 1: GitHub Integration (Recommended)
+1. Push to GitHub
+2. Import repository in Vercel dashboard
+3. Deploy automatically
+
+### Option 2: Vercel CLI
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+### Configuration
+- `vercel.json`: Pre-configured for static site hosting
+- `package.json`: Metadata and scripts
+
+---
+
+## 📁 Project Structure
+
+```
+HyperFireworks/
+├── public/
+│   ├── index.html          # Main HTML file
+│   ├── fireworks.js        # Animation logic
+│   ├── events.json         # Event data (98,620 events)
+│   └── summary.json        # Summary statistics
+├── prepare_data.py         # Data preparation script
+├── package.json            # NPM configuration
+├── vercel.json             # Vercel deployment config
+└── README.md               # This file
+```
+
+---
+
+## 🎯 Key Features
+
+### Visual Design
+- ✨ Particle-based firework explosions
+- 🌌 Beautiful gradient background
+- 💫 Realistic physics (gravity, friction, decay)
+- 🎨 Color-coded by event type and PNL
+- 📏 Size-coded by amount
+
+### User Experience
+- 📊 Real-time statistics dashboard
+- ⏱️ Timeline with progress bar
+- 🎮 Interactive playback controls
+- 🔍 Event details on firework launch
+- 🎨 Legend for easy interpretation
+
+### Performance
+- ⚡ Efficient canvas rendering
+- 🚀 Variable playback speeds (10x - 1000x)
+- 🎯 Optimized particle system
+- 📱 Responsive design (mobile-friendly)
+
+---
+
+## 🔍 Event Details Display
+
+When each firework launches, you'll see:
+- **Event Type**: "LIQUIDATED" or "ADL"
+- **Ticker**: Asset symbol (BTC, ETH, SOL, etc.)
+- **Amount**: Notional value ($)
+- **PNL**: Realized profit/loss
+- **Address**: Wallet address (truncated)
+
+---
+
+## 📊 Historical Significance
+
+This visualization captures the **largest documented on-chain liquidation cascade in DeFi history**:
+
+### Scale
+- $7.6 BILLION in forced closures
+- 98,620 events in 12 minutes
+- 175 unique assets affected
+- 8,218 events per minute sustained
+
+### System Outcome
+- Protocol remained solvent ✅
+- ADL mechanism worked as designed ✅
+- No insurance fund bankruptcy ✅
+- Complete blockchain verification ✅
+
+### Comparison
+- **1,000x larger** than MakerDAO Black Thursday ($8M bad debt)
+- **First complete** multi-asset DeFi cascade analysis
+- **100% blockchain-verified** with full transaction trails
+
+---
+
+## 🎓 For Researchers
+
+### Academic Value
+This visualization demonstrates:
+1. **Liquidation cascade mechanics** in real-time
+2. **ADL trigger patterns** and distribution
+3. **Market concentration** effects (65% in top 3 assets)
+4. **System resilience** under extreme stress
+5. **Event velocity** and temporal patterns
+
+### Citation Data
+```
+Event: October 10, 2025 Liquidation Cascade
+Platform: Hyperliquid L1
+Total Impact: $7.61 billion USD
+Duration: 12 minutes (21:15-21:27 UTC)
+Events: 98,620 forced closures
+Assets: 175 unique tickers
+Visualization: HyperFireworks (https://github.com/ConejoCapital/HyperFireworks)
+```
+
+---
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Pure HTML5, CSS3, JavaScript (ES6+)
+- **Animation**: HTML5 Canvas API
+- **Data Format**: JSON (pre-processed from CSV)
+- **Hosting**: Vercel (static site)
+- **Data Processing**: Python 3 + Pandas
+
+---
+
+## 📜 License
+
+GPL-3.0 License - See [LICENSE](LICENSE) file for details
+
+---
+
+## 👥 Credits
+
+**Created by**: Conejo Capital  
+**Data Source**: Hyperliquid S3 Buckets  
+**Research**: [HyperMultiAssetedADL](https://github.com/ConejoCapital/HyperMultiAssetedADL)
+
+---
+
+## 🔗 Related Projects
+
+- 📊 [HyperMultiAssetedADL](https://github.com/ConejoCapital/HyperMultiAssetedADL) - Full cascade analysis
+- 📈 [HyperAnalyzeADL](https://github.com/ConejoCapital/HyperAnalyzeADL) - Position-level data
+- 🎆 [HyperFireworks](https://github.com/ConejoCapital/HyperFireworks) - This visualization
+
+---
+
+## 📧 Contact
+
+For questions, issues, or research collaboration:
+- Open an issue on GitHub
+- Related repositories: See links above
+
+---
+
+## 🙏 Acknowledgments
+
+Special thanks to:
+- Hyperliquid team for open S3 data access
+- SonarX for data quality verification
+- The DeFi research community
+
+---
+
+**🎆 Watch the cascade unfold in real-time!**
+
+*This visualization brings data to life, showing the largest DeFi liquidation event ever documented.*
+
+**Live Demo**: [hyperfireworks.vercel.app](https://hyperfireworks.vercel.app)
+

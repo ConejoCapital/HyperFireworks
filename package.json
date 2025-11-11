@@ -1,0 +1,26 @@
+{
+  "name": "hyperfireworks",
+  "version": "1.0.0",
+  "description": "Firework visualization of the October 10, 2025 Hyperliquid ADL event showcasing Liquidation and ADLs",
+  "main": "public/index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000 --directory public",
+    "build": "echo 'Static site - no build needed'",
+    "start": "python3 -m http.server 8000 --directory public"
+  },
+  "keywords": [
+    "hyperliquid",
+    "liquidation",
+    "adl",
+    "visualization",
+    "defi",
+    "crypto"
+  ],
+  "author": "Conejo Capital",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConejoCapital/HyperFireworks.git"
+  }
+}
+

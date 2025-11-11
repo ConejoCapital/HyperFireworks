@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperFireworks - October 10, 2025 Liquidation Cascade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(to bottom, #000428, #004e92);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        #header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        #stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-width: 300px;
+        }
+
+        #stats h2 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.liquidation {
+            color: #ff6b6b;
+        }
+
+        .stat-value.adl-positive {
+            color: #51cf66;
+        }
+
+        .stat-value.adl-negative {
+            color: #ff6b6b;
+        }
+
+        #event-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #event-display.show {
+            opacity: 1;
+        }
+
+        #event-display .address {
+            font-size: 0.6em;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            pointer-events: all;
+        }
+
+        #controls button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 12px 30px;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        #controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        #controls button:active {
+            transform: scale(0.95);
+        }
+
+        #timeline {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #timeline-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        #timeline-progress {
+            height: 100%;
+            background: linear-gradient(to right, #51cf66, #ff6b6b);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #legend h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid white;
+        }
+
+        .legend-color.adl-positive {
+            background: #51cf66;
+        }
+
+        .legend-color.adl-negative {
+            background: #ff6b6b;
+        }
+
+        .legend-color.liquidation {
+            background: linear-gradient(to right, #ffd700, #ff6b6b, #9b59b6);
+        }
+
+        @media (max-width: 768px) {
+            #header h1 {
+                font-size: 1.5em;
+            }
+            #stats, #legend {
+                font-size: 0.8em;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="ui">
+        <div id="header">
+            <h1>🎆 HyperFireworks 🎆</h1>
+            <p>October 10, 2025 - Liquidation Cascade Visualization</p>
+        </div>
+
+        <div id="stats">
+            <h2>Live Stats</h2>
+            <div class="stat-row">
+                <span class="stat-label">Events Fired:</span>
+                <span class="stat-value" id="events-fired">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Liquidations:</span>
+                <span class="stat-value liquidation" id="liquidations-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">ADL Events:</span>
+                <span class="stat-value" id="adl-count">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Total Volume:</span>
+                <span class="stat-value" id="total-volume">$0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Playback Speed:</span>
+                <span class="stat-value" id="speed-display">100x</span>
+            </div>
+        </div>
+
+        <div id="legend">
+            <h3>Firework Legend</h3>
+            <div class="legend-item">
+                <div class="legend-color adl-positive"></div>
+                <div>ADL (Positive PNL)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color adl-negative"></div>
+                <div>ADL (Negative PNL)</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color liquidation"></div>
+                <div>Liquidation (Size varies)</div>
+            </div>
+        </div>
+
+        <div id="event-display"></div>
+
+        <div id="controls">
+            <button id="start-btn">🚀 Start</button>
+            <button id="pause-btn">⏸️ Pause</button>
+            <button id="reset-btn">🔄 Reset</button>
+            <button id="speed-btn">⚡ Speed: 100x</button>
+        </div>
+
+        <div id="timeline">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span id="current-time">21:15:00</span>
+                <span id="end-time">21:27:00</span>
+            </div>
+            <div id="timeline-bar">
+                <div id="timeline-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="fireworks.js"></script>
+</body>
+</html>
+
