@@ -229,21 +229,41 @@ function updateTimeline(clickProgress = null) {
             }
         }
     } else {
-        const currentEvent = events[currentEventIndex] || events[events.length - 1];
-        const currentTimestamp = new Date(currentEvent.timestamp).getTime();
-        progress = ((currentTimestamp - startTimestamp) / (endTimestamp - startTimestamp)) * 100;
+        // Calculate progress based on ELAPSED TIME, not current event index
+        // This ensures smooth progression even when there are gaps between events
+        if (isPlaying && !isPaused) {
+            const now = Date.now();
+            const elapsedTime = (now - startTime) * playbackSpeed;
+            const totalDuration = endTimestamp - startTimestamp;
+            progress = Math.min(100, (elapsedTime / totalDuration) * 100);
+        } else {
+            // When paused, use current event position
+            const currentEvent = events[currentEventIndex] || events[events.length - 1];
+            const currentTimestamp = new Date(currentEvent.timestamp).getTime();
+            progress = ((currentTimestamp - startTimestamp) / (endTimestamp - startTimestamp)) * 100;
+        }
     }
     
     document.getElementById('timeline-progress').style.width = `${progress}%`;
     
-    // Update time display in UTC
-    const currentEvent = events[currentEventIndex] || events[0];
-    const currentTime = new Date(currentEvent.timestamp);
+    // Update time display in UTC based on ELAPSED TIME, not just current event
+    let displayTime;
+    if (isPlaying && !isPaused && clickProgress === null) {
+        // Calculate current time based on elapsed playback time
+        const now = Date.now();
+        const elapsedTime = (now - startTime) * playbackSpeed;
+        const currentTimestamp = startTimestamp + elapsedTime;
+        displayTime = new Date(currentTimestamp);
+    } else {
+        // When paused or clicked, use current event time
+        const currentEvent = events[currentEventIndex] || events[0];
+        displayTime = new Date(currentEvent.timestamp);
+    }
     
     // Format as UTC time (HH:MM:SS)
-    const hours = String(currentTime.getUTCHours()).padStart(2, '0');
-    const minutes = String(currentTime.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(currentTime.getUTCSeconds()).padStart(2, '0');
+    const hours = String(displayTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(displayTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(displayTime.getUTCSeconds()).padStart(2, '0');
     const utcTimeString = `${hours}:${minutes}:${seconds}`;
     
     document.getElementById('current-time').textContent = utcTimeString;
