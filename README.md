@@ -8,6 +8,26 @@ A beautiful, real-time visualization of the largest documented DeFi liquidation 
 
 ---
 
+## 🚀 Latest Updates (v1.3.0)
+
+### Critical Bug Fixes ✅
+- **Fixed Double Counting**: Stats now accurately progress in real-time without re-summing on replay
+- **Fixed Animation Freezing**: Enhanced error handling prevents animations from freezing or not showing
+- **Fixed Progress Bar Stuck**: Timeline and progress bar never get stuck randomly anymore
+- **Improved Data Accuracy**: Events counted exactly once, maintaining data representation accuracy
+- **Better Performance**: Particle limits (500 mobile, 1000 desktop) prevent performance degradation
+- **Enhanced Stability**: Comprehensive try-catch blocks ensure continuous operation even if errors occur
+
+### Technical Improvements
+- `processedEventIndices` Set tracks which events have been counted
+- Stats automatically recalculate when jumping backwards on timeline
+- Animation loop always requests next frame first (prevents freeze)
+- Invalid event and particle validation before processing
+- Safety checks for elapsed time calculations
+- Proper cleanup on reset and replay
+
+---
+
 ## 📊 What This Visualizes
 
 **Event**: October 10, 2025, 21:15-21:27 UTC (12 minutes)  
