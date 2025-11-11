@@ -17,6 +17,7 @@
             color: white;
             overflow: hidden;
             height: 100vh;
+            touch-action: none; /* Prevent default touch behaviors */
         }
 
         #canvas {
@@ -175,15 +176,23 @@
             border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.2);
+            pointer-events: all;
         }
 
         #timeline-bar {
             width: 100%;
-            height: 8px;
+            height: 20px; /* Increased for easier clicking/touching */
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+            border-radius: 10px;
             overflow: hidden;
             margin-top: 10px;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #timeline-bar:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         #timeline-progress {
@@ -191,6 +200,7 @@
             background: linear-gradient(to right, #51cf66, #ff6b6b);
             width: 0%;
             transition: width 0.1s linear;
+            pointer-events: none;
         }
 
         #legend {
@@ -238,12 +248,77 @@
         }
 
         @media (max-width: 768px) {
-            #header h1 {
-                font-size: 1.5em;
+            #header {
+                top: 10px;
+                padding: 15px 20px;
             }
+            
+            #header h1 {
+                font-size: 1.3em;
+            }
+            
+            #header p {
+                font-size: 0.9em;
+            }
+            
             #stats, #legend {
+                font-size: 0.75em;
+                min-width: 150px;
+                padding: 12px;
+                top: 10px;
+            }
+            
+            #stats {
+                left: 10px;
+            }
+            
+            #legend {
+                right: 10px;
+            }
+            
+            #controls {
+                bottom: 90px; /* Move up to avoid overlapping timeline */
+                padding: 12px 20px;
+            }
+            
+            #controls button {
+                padding: 10px 15px;
+                margin: 0 5px;
+                font-size: 0.9em;
+            }
+            
+            #timeline {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                padding: 10px;
+            }
+            
+            #timeline-bar {
+                height: 25px; /* Even larger for mobile touch */
+            }
+            
+            #event-display {
+                max-width: 90%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #header h1 {
+                font-size: 1.1em;
+            }
+            
+            #header p {
                 font-size: 0.8em;
-                min-width: 200px;
+            }
+            
+            #stats h2, #legend h3 {
+                font-size: 1em;
+            }
+            
+            #controls button {
+                padding: 8px 12px;
+                font-size: 0.8em;
             }
         }
     </style>
@@ -316,6 +391,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Background music: 1812 Overture -->
+    <audio id="bgmusic" preload="auto" loop>
+        <source src="1812.mp3" type="audio/mpeg">
+    </audio>
 
     <script src="fireworks.js"></script>
 </body>

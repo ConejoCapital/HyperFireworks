@@ -45,12 +45,22 @@ Size varies logarithmically with the amount liquidated/ADL'd:
 
 ## 🎮 Controls
 
-| Button | Function |
-|--------|----------|
-| 🚀 **Start** | Begin the visualization |
+| Control | Function |
+|---------|----------|
+| **Auto-Start** | Visualization begins automatically when page loads |
+| 🚀 **Start** | Begin/replay the visualization |
 | ⏸️ **Pause** | Pause/resume playback |
 | 🔄 **Reset** | Reset to beginning |
-| ⚡ **Speed** | Cycle through playback speeds (10x, 50x, 100x, 200x, 500x, 1000x) |
+| ⚡ **Speed** | Cycle through playback speeds (1x Synced, 2x, 5x, 10x) |
+| **Timeline** | Click/touch anywhere on the timeline to jump to that moment |
+
+### 🎵 Musical Synchronization
+
+The visualization is synced with **Tchaikovsky's 1812 Overture**:
+- The music starts automatically with the visualization
+- The **largest liquidation** ($193M BTC) fires exactly at **14:55** during the dramatic cannon shots 🔥
+- Music loops automatically when finished
+- Perfect dramatic timing for maximum impact!
 
 ---
 
@@ -166,9 +176,12 @@ HyperFireworks/
 
 ### Performance
 - ⚡ Efficient canvas rendering
-- 🚀 Variable playback speeds (10x - 1000x)
-- 🎯 Optimized particle system
-- 📱 Responsive design (mobile-friendly)
+- 🚀 Music-synced playback (1x, 2x, 5x, 10x)
+- 🎯 Heavily optimized particle system (50-70% reduction)
+- 📱 Fully mobile-optimized with touch support
+- 🎵 1812 Overture synchronized to largest event at 14:55
+- ⚡ Auto-starts on page load
+- 👆 Clickable/touchable timeline navigation
 
 ---
 
