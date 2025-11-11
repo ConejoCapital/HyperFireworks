@@ -249,42 +249,76 @@
 
         @media (max-width: 768px) {
             #header {
-                top: 10px;
-                padding: 15px 20px;
-            }
-            
-            #header h1 {
-                font-size: 1.3em;
-            }
-            
-            #header p {
-                font-size: 0.9em;
-            }
-            
-            #stats, #legend {
-                font-size: 0.75em;
-                min-width: 150px;
-                padding: 12px;
-                top: 10px;
+                display: none; /* Hide on mobile to save space */
             }
             
             #stats {
+                top: 10px;
                 left: 10px;
+                font-size: 0.7em;
+                padding: 10px;
+                min-width: auto;
+                max-width: 45%;
+            }
+            
+            #stats h2 {
+                font-size: 1em;
+                margin-bottom: 8px;
+                padding-bottom: 5px;
+            }
+            
+            #stats .stat-row {
+                margin: 5px 0;
+                font-size: 0.95em;
             }
             
             #legend {
+                top: 10px;
                 right: 10px;
+                font-size: 0.7em;
+                padding: 10px;
+                min-width: auto;
+                max-width: 45%;
+            }
+            
+            #legend h3 {
+                font-size: 1em;
+                margin-bottom: 8px;
+                padding-bottom: 5px;
+            }
+            
+            #legend .legend-item {
+                margin: 5px 0;
+            }
+            
+            #legend .legend-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 8px;
+            }
+            
+            #event-display {
+                max-width: 85%;
+                font-size: 1.2em;
+            }
+            
+            #event-display .address {
+                font-size: 0.5em;
             }
             
             #controls {
-                bottom: 90px; /* Move up to avoid overlapping timeline */
-                padding: 12px 20px;
+                bottom: 90px;
+                padding: 10px 15px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
             }
             
             #controls button {
-                padding: 10px 15px;
-                margin: 0 5px;
-                font-size: 0.9em;
+                padding: 12px 20px;
+                margin: 0;
+                font-size: 1em;
+                width: 100%;
             }
             
             #timeline {
@@ -292,32 +326,47 @@
                 left: 10px;
                 right: 10px;
                 padding: 10px;
+                font-size: 0.85em;
             }
             
             #timeline-bar {
-                height: 25px; /* Even larger for mobile touch */
-            }
-            
-            #event-display {
-                max-width: 90%;
+                height: 30px; /* Larger for mobile touch */
             }
         }
         
         @media (max-width: 480px) {
-            #header h1 {
-                font-size: 1.1em;
-            }
-            
-            #header p {
-                font-size: 0.8em;
+            #stats, #legend {
+                font-size: 0.65em;
+                padding: 8px;
             }
             
             #stats h2, #legend h3 {
+                font-size: 0.9em;
+                margin-bottom: 5px;
+            }
+            
+            #stats .stat-row, #legend .legend-item {
+                margin: 3px 0;
+            }
+            
+            #event-display {
                 font-size: 1em;
+                max-width: 90%;
+            }
+            
+            #controls {
+                padding: 8px 12px;
+                gap: 6px;
+                bottom: 85px;
             }
             
             #controls button {
-                padding: 8px 12px;
+                padding: 10px 16px;
+                font-size: 0.9em;
+            }
+            
+            #timeline {
+                padding: 8px;
                 font-size: 0.8em;
             }
         }
