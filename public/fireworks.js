@@ -164,23 +164,35 @@ function showEventInfo(event, isClimax = false) {
 
 // Show major event (biggest liquidation or ADL) for 5 seconds
 function showMajorEvent(event, type) {
-    const display = document.getElementById('major-event-display');
-    const title = document.getElementById('major-event-title');
-    const value = document.getElementById('major-event-value');
-    const ticker = document.getElementById('major-event-ticker');
-    
-    const typeLabel = type === 'liquidation' ? 'Biggest Liquidation' : 'Biggest ADL';
-    const amount = formatMoney(event.amount);
-    
-    title.textContent = typeLabel;
-    value.textContent = amount;
-    ticker.textContent = `on ${event.ticker}`;
-    
-    display.className = `show ${type}`;
-    
-    setTimeout(() => {
-        display.classList.remove('show');
-    }, 5000); // Show for 5 seconds
+    if (type === 'liquidation') {
+        const display = document.getElementById('liquidation-event-display');
+        const value = document.getElementById('liquidation-event-value');
+        const ticker = document.getElementById('liquidation-event-ticker');
+        
+        const amount = formatMoney(event.amount);
+        value.textContent = amount;
+        ticker.textContent = `on ${event.ticker}`;
+        
+        display.classList.add('show');
+        
+        setTimeout(() => {
+            display.classList.remove('show');
+        }, 5000); // Show for 5 seconds
+    } else if (type === 'adl') {
+        const display = document.getElementById('adl-event-display');
+        const value = document.getElementById('adl-event-value');
+        const ticker = document.getElementById('adl-event-ticker');
+        
+        const amount = formatMoney(event.amount);
+        value.textContent = amount;
+        ticker.textContent = `on ${event.ticker}`;
+        
+        display.classList.add('show');
+        
+        setTimeout(() => {
+            display.classList.remove('show');
+        }, 5000); // Show for 5 seconds
+    }
 }
 
 // Format functions
@@ -248,9 +260,13 @@ function updateTimeline(clickProgress = null) {
                 // Calculate elapsed data time (seconds)
                 const elapsedDataTime = (eventTimestamp - startTimestamp) / 1000;
                 
-                // Calculate corresponding audio time
-                // Data time / playback speed = audio time
-                const targetAudioTime = elapsedDataTime / playbackSpeed;
+                // Calculate audio position using 10x sync formula:
+                // Audio should reach MUSIC_CLIMAX_TIME when data reaches LARGEST_EVENT_DATA_TIME
+                // audioStart = MUSIC_CLIMAX_TIME - (LARGEST_EVENT_DATA_TIME / playbackSpeed)
+                // currentAudio = audioStart + (elapsedDataTime / playbackSpeed)
+                const realTimeToClimax = LARGEST_EVENT_DATA_TIME / playbackSpeed;
+                const audioStartPosition = Math.max(0, MUSIC_CLIMAX_TIME - realTimeToClimax);
+                const targetAudioTime = audioStartPosition + (elapsedDataTime / playbackSpeed);
                 
                 // Sync audio to this position
                 if (audio && !isNaN(audio.duration) && audio.duration > 0) {
@@ -445,9 +461,36 @@ async function loadEvents() {
         
         // Position the markers on the timeline
         console.log('\n=== TIMELINE MARKERS ===');
+        
+        let liqPercent = null;
+        let adlPercent = null;
+        
         if (biggestLiquidation.event) {
             const liqTimestamp = new Date(biggestLiquidation.event.timestamp).getTime();
-            const liqPercent = ((liqTimestamp - startTimestamp) / totalDuration) * 100;
+            liqPercent = ((liqTimestamp - startTimestamp) / totalDuration) * 100;
+        }
+        
+        if (biggestADL.event) {
+            const adlTimestamp = new Date(biggestADL.event.timestamp).getTime();
+            adlPercent = ((adlTimestamp - startTimestamp) / totalDuration) * 100;
+        }
+        
+        // If markers are too close (within 2%), offset them horizontally so both are visible
+        const MIN_SEPARATION = 2.0; // 2% minimum separation
+        if (liqPercent !== null && adlPercent !== null) {
+            const diff = Math.abs(liqPercent - adlPercent);
+            if (diff < MIN_SEPARATION) {
+                console.log(`⚠️  Markers too close (${diff.toFixed(2)}% apart) - offsetting for visibility`);
+                // Offset the one that's later (to the right)
+                if (liqPercent < adlPercent) {
+                    adlPercent = liqPercent + MIN_SEPARATION;
+                } else {
+                    liqPercent = adlPercent + MIN_SEPARATION;
+                }
+            }
+        }
+        
+        if (liqPercent !== null) {
             const liqMarker = document.getElementById('climax-marker');
             liqMarker.style.left = `${liqPercent}%`;
             liqMarker.style.display = 'block';
@@ -456,9 +499,7 @@ async function loadEvents() {
             console.log('💥 No liquidation found');
         }
         
-        if (biggestADL.event) {
-            const adlTimestamp = new Date(biggestADL.event.timestamp).getTime();
-            const adlPercent = ((adlTimestamp - startTimestamp) / totalDuration) * 100;
+        if (adlPercent !== null) {
             const adlMarker = document.getElementById('adl-marker');
             adlMarker.style.left = `${adlPercent}%`;
             adlMarker.style.display = 'block';
@@ -587,41 +628,14 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     document.getElementById('pause-btn').textContent = '⏸️ Pause';
 });
 
-document.getElementById('speed-btn').addEventListener('click', () => {
-    const speeds = [SYNC_SPEED, SYNC_SPEED * 2, SYNC_SPEED * 5, SYNC_SPEED * 10];
-    const labels = ['1x (Synced)', '2x', '5x', '10x'];
-    
-    // Find closest speed to current playback speed
-    let currentIndex = 0;
-    let minDiff = Math.abs(playbackSpeed - speeds[0]);
-    for (let i = 1; i < speeds.length; i++) {
-        const diff = Math.abs(playbackSpeed - speeds[i]);
-        if (diff < minDiff) {
-            minDiff = diff;
-            currentIndex = i;
-        }
-    }
-    
-    const nextIndex = (currentIndex + 1) % speeds.length;
-    playbackSpeed = speeds[nextIndex];
-    
-    document.getElementById('speed-btn').textContent = `⚡ ${labels[nextIndex]}`;
-    document.getElementById('speed-display').textContent = labels[nextIndex];
-    
-    if (isPlaying && !isPaused) {
-        // Recalculate startTime to maintain position when changing speed
-        const now = Date.now();
-        const elapsedRealTime = now - startTime;
-        startTime = now - (elapsedRealTime * playbackSpeed / speeds[currentIndex]);
-    }
-});
+// Speed locked to 10x only (canonical version)
+// No speed button - playbackSpeed remains at SYNC_SPEED * 10 always
 
 // Initialize
 loadEvents().then(() => {
     animate();
     updateStats();
-    // Set initial speed display to 10x (default)
-    document.getElementById('speed-btn').textContent = '⚡ 10x';
+    // Speed locked at 10x (canonical version)
     document.getElementById('speed-display').textContent = '10x';
 }).catch(error => {
     console.error('Failed to load events:', error);

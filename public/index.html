@@ -216,94 +216,110 @@
             position: absolute;
             top: 0;
             left: 0%; /* Will be set dynamically */
-            width: 5px;
+            width: 3px;
             height: 100%;
-            background: #ffd700;
-            box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700;
-            z-index: 6;
+            background: linear-gradient(to bottom, #ffd700, #ff6b6b);
+            box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700;
+            z-index: 7;
             pointer-events: none;
             display: none; /* Hidden until positioned */
         }
 
         #climax-marker::before {
-            content: '💥';
+            content: '💥 LIQ';
             position: absolute;
-            top: -30px;
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
-            text-shadow: 0 0 8px #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #000;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ffd700;
         }
         
         #adl-marker {
             position: absolute;
             top: 0;
             left: 0%; /* Will be set dynamically */
-            width: 5px;
+            width: 3px;
             height: 100%;
-            background: #51cf66;
-            box-shadow: 0 0 15px #51cf66, 0 0 30px #51cf66;
-            z-index: 5;
+            background: linear-gradient(to bottom, #51cf66, #00ff00);
+            box-shadow: 0 0 20px #51cf66, 0 0 40px #51cf66, 0 0 60px #51cf66;
+            z-index: 6;
             pointer-events: none;
             display: none; /* Hidden until positioned */
         }
         
         #adl-marker::before {
-            content: '🎯';
+            content: '🎯 ADL';
             position: absolute;
-            top: -55px; /* Offset more so it doesn't overlap with liquidation marker if close */
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
-            text-shadow: 0 0 8px #51cf66;
+            font-size: 14px;
+            font-weight: bold;
+            color: #51cf66;
+            text-shadow: 0 0 10px #51cf66, 0 0 20px #000;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #51cf66;
         }
         
-        #major-event-display {
+        .major-event-display {
             position: absolute;
-            top: 35%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 50%;
+            transform: translateY(-50%);
             text-align: center;
-            font-size: 2.5em;
+            font-size: 2.2em;
             text-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
             opacity: 0;
             transition: opacity 0.5s;
             pointer-events: none;
             z-index: 1000;
-            max-width: 90%;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
+            width: 45%;
+            padding: 25px 15px;
+            background: rgba(0, 0, 0, 0.9);
             border-radius: 15px;
             border: 3px solid;
         }
         
-        #major-event-display.show {
+        #liquidation-event-display {
+            left: 2%;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 40px #ff6b6b;
+        }
+        
+        #adl-event-display {
+            right: 2%;
+            border-color: #51cf66;
+            box-shadow: 0 0 40px #51cf66;
+        }
+        
+        .major-event-display.show {
             opacity: 1;
         }
         
-        #major-event-display.liquidation {
-            border-color: #ff6b6b;
-            box-shadow: 0 0 30px #ff6b6b;
-        }
-        
-        #major-event-display.adl {
-            border-color: #51cf66;
-            box-shadow: 0 0 30px #51cf66;
-        }
-        
-        #major-event-display .event-title {
+        .major-event-display .event-title {
             font-size: 1em;
             font-weight: bold;
             margin-bottom: 15px;
         }
         
-        #major-event-display .event-value {
-            font-size: 1.2em;
+        .major-event-display .event-value {
+            font-size: 1.3em;
             margin: 10px 0;
+            font-weight: bold;
         }
         
-        #major-event-display .event-ticker {
-            font-size: 0.8em;
+        .major-event-display .event-ticker {
+            font-size: 0.9em;
             opacity: 0.9;
         }
 
@@ -575,7 +591,6 @@
             <button id="start-btn">🚀 Start</button>
             <button id="pause-btn">⏸️ Pause</button>
             <button id="reset-btn">🔄 Reset</button>
-            <button id="speed-btn">⚡ Speed: 100x</button>
         </div>
 
         <div id="timeline">
@@ -590,10 +605,16 @@
             </div>
         </div>
         
-        <div id="major-event-display">
-            <div class="event-title" id="major-event-title"></div>
-            <div class="event-value" id="major-event-value"></div>
-            <div class="event-ticker" id="major-event-ticker"></div>
+        <div id="liquidation-event-display" class="major-event-display">
+            <div class="event-title">💥 Biggest Liquidation</div>
+            <div class="event-value" id="liquidation-event-value"></div>
+            <div class="event-ticker" id="liquidation-event-ticker"></div>
+        </div>
+        
+        <div id="adl-event-display" class="major-event-display">
+            <div class="event-title">🎯 Biggest ADL</div>
+            <div class="event-value" id="adl-event-value"></div>
+            <div class="event-ticker" id="adl-event-ticker"></div>
         </div>
     </div>
 
