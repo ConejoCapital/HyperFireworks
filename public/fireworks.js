@@ -18,7 +18,7 @@ let isPaused = false;
 const LARGEST_EVENT_DATA_TIME = 164.3; // seconds into the data
 const MUSIC_CLIMAX_TIME = 928; // seconds (15:28)
 const SYNC_SPEED = LARGEST_EVENT_DATA_TIME / MUSIC_CLIMAX_TIME; // ≈ 0.177x
-let playbackSpeed = SYNC_SPEED;
+let playbackSpeed = SYNC_SPEED * 10; // Default to 10x for smoother experience
 
 // Mobile detection
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -37,6 +37,11 @@ let stats = {
     adlVolume: 0
 };
 let processedEventIndices = new Set(); // Track which events we've already counted
+
+// Track major events
+let biggestLiquidation = { amount: 0, event: null, index: -1 };
+let biggestADL = { amount: 0, event: null, index: -1 };
+let majorEventShown = { liquidation: false, adl: false };
 
 // Resize canvas
 function resizeCanvas() {
@@ -155,6 +160,27 @@ function showEventInfo(event, isClimax = false) {
     setTimeout(() => {
         display.classList.remove('show');
     }, isClimax ? 3000 : 1200); // Show climax longer
+}
+
+// Show major event (biggest liquidation or ADL) for 5 seconds
+function showMajorEvent(event, type) {
+    const display = document.getElementById('major-event-display');
+    const title = document.getElementById('major-event-title');
+    const value = document.getElementById('major-event-value');
+    const ticker = document.getElementById('major-event-ticker');
+    
+    const typeLabel = type === 'liquidation' ? 'Biggest Liquidation' : 'Biggest ADL';
+    const amount = formatMoney(event.amount);
+    
+    title.textContent = typeLabel;
+    value.textContent = amount;
+    ticker.textContent = `on ${event.ticker}`;
+    
+    display.className = `show ${type}`;
+    
+    setTimeout(() => {
+        display.classList.remove('show');
+    }, 5000); // Show for 5 seconds
 }
 
 // Format functions
@@ -341,6 +367,15 @@ function animate() {
                     
                     createFirework(x, y, event);
                     
+                    // Check if this is the biggest liquidation or ADL
+                    if (currentEventIndex === biggestLiquidation.index && !majorEventShown.liquidation) {
+                        showMajorEvent(event, 'liquidation');
+                        majorEventShown.liquidation = true;
+                    } else if (currentEventIndex === biggestADL.index && !majorEventShown.adl) {
+                        showMajorEvent(event, 'adl');
+                        majorEventShown.adl = true;
+                    }
+                    
                     // Update stats ONLY if this event hasn't been counted yet
                     if (!processedEventIndices.has(currentEventIndex)) {
                         stats.eventsFired++;
@@ -395,6 +430,34 @@ async function loadEvents() {
         const endSeconds = String(endTime.getUTCSeconds()).padStart(2, '0');
         document.getElementById('end-time').textContent = `${endHours}:${endMinutes}:${endSeconds}`;
         
+        // Find biggest liquidation and biggest ADL
+        const startTimestamp = new Date(eventStartTime).getTime();
+        const endTimestamp = new Date(events[events.length - 1].timestamp).getTime();
+        const totalDuration = endTimestamp - startTimestamp;
+        
+        events.forEach((event, index) => {
+            if (event.type !== 'adl' && event.amount > biggestLiquidation.amount) {
+                biggestLiquidation = { amount: event.amount, event: event, index: index };
+            } else if (event.type === 'adl' && event.amount > biggestADL.amount) {
+                biggestADL = { amount: event.amount, event: event, index: index };
+            }
+        });
+        
+        // Position the markers on the timeline
+        if (biggestLiquidation.event) {
+            const liqTimestamp = new Date(biggestLiquidation.event.timestamp).getTime();
+            const liqPercent = ((liqTimestamp - startTimestamp) / totalDuration) * 100;
+            document.getElementById('climax-marker').style.left = `${liqPercent}%`;
+            console.log(`Biggest Liquidation: ${formatMoney(biggestLiquidation.amount)} on ${biggestLiquidation.event.ticker} at ${liqPercent.toFixed(1)}%`);
+        }
+        
+        if (biggestADL.event) {
+            const adlTimestamp = new Date(biggestADL.event.timestamp).getTime();
+            const adlPercent = ((adlTimestamp - startTimestamp) / totalDuration) * 100;
+            document.getElementById('adl-marker').style.left = `${adlPercent}%`;
+            console.log(`Biggest ADL: ${formatMoney(biggestADL.amount)} on ${biggestADL.event.ticker} at ${adlPercent.toFixed(1)}%`);
+        }
+        
         // AUTO-START
         autoStart();
     } catch (error) {
@@ -435,6 +498,7 @@ function startVisualization() {
             currentEventIndex = 0;
             stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0, liquidationVolume: 0, adlVolume: 0 };
             processedEventIndices.clear(); // Clear the set of processed events
+            majorEventShown = { liquidation: false, adl: false }; // Reset major event flags
             particles = [];
             updateStats();
             audio.currentTime = 0;
@@ -495,6 +559,7 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     particles = [];
     stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0, liquidationVolume: 0, adlVolume: 0 };
     processedEventIndices.clear(); // Clear processed events tracking
+    majorEventShown = { liquidation: false, adl: false }; // Reset major event flags
     updateStats();
     updateTimeline();
     audio.pause();
@@ -536,9 +601,9 @@ document.getElementById('speed-btn').addEventListener('click', () => {
 loadEvents().then(() => {
     animate();
     updateStats();
-    // Set initial speed display
-    document.getElementById('speed-btn').textContent = '⚡ 1x (Synced)';
-    document.getElementById('speed-display').textContent = '1x (Synced)';
+    // Set initial speed display to 10x (default)
+    document.getElementById('speed-btn').textContent = '⚡ 10x';
+    document.getElementById('speed-display').textContent = '10x';
 }).catch(error => {
     console.error('Failed to load events:', error);
     alert('Failed to load event data. Please refresh the page.');
