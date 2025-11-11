@@ -269,6 +269,23 @@
             background: linear-gradient(to right, #ffd700, #ff6b6b, #9b59b6);
         }
 
+        @media (max-width: 1200px) {
+            #stats {
+                font-size: 0.85em;
+                padding: 12px;
+                max-width: 280px;
+            }
+            
+            #stats h2 {
+                font-size: 1.1em;
+            }
+            
+            #legend {
+                font-size: 0.85em;
+                padding: 12px;
+            }
+        }
+        
         @media (max-width: 768px) {
             #header {
                 display: none; /* Hide on mobile to save space */
@@ -277,21 +294,26 @@
             #stats {
                 top: 10px;
                 left: 10px;
-                font-size: 0.7em;
-                padding: 10px;
+                font-size: 0.65em;
+                padding: 8px;
                 min-width: auto;
-                max-width: 45%;
+                max-width: 42%;
             }
             
             #stats h2 {
-                font-size: 1em;
-                margin-bottom: 8px;
-                padding-bottom: 5px;
+                font-size: 0.95em;
+                margin-bottom: 6px;
+                padding-bottom: 4px;
             }
             
             #stats .stat-row {
-                margin: 5px 0;
-                font-size: 0.95em;
+                margin: 3px 0;
+                font-size: 0.9em;
+            }
+            
+            #stats .stat-label {
+                display: inline-block;
+                min-width: 70px;
             }
             
             #legend {
@@ -358,17 +380,22 @@
         
         @media (max-width: 480px) {
             #stats, #legend {
-                font-size: 0.65em;
-                padding: 8px;
+                font-size: 0.6em;
+                padding: 6px;
             }
             
             #stats h2, #legend h3 {
-                font-size: 0.9em;
-                margin-bottom: 5px;
+                font-size: 0.85em;
+                margin-bottom: 4px;
             }
             
             #stats .stat-row, #legend .legend-item {
-                margin: 3px 0;
+                margin: 2px 0;
+                line-height: 1.3;
+            }
+            
+            #stats .stat-label {
+                min-width: 65px;
             }
             
             #event-display {
@@ -429,6 +456,14 @@
             <div class="stat-row">
                 <span class="stat-label">Total Volume:</span>
                 <span class="stat-value" id="total-volume">$0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Liquidated:</span>
+                <span class="stat-value liquidation" id="liquidation-volume">$0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">ADL'd:</span>
+                <span class="stat-value adl" id="adl-volume">$0</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Playback Speed:</span>

@@ -32,7 +32,9 @@ let stats = {
     eventsFired: 0,
     liquidations: 0,
     adls: 0,
-    totalVolume: 0
+    totalVolume: 0,
+    liquidationVolume: 0,
+    adlVolume: 0
 };
 let processedEventIndices = new Set(); // Track which events we've already counted
 
@@ -106,13 +108,13 @@ function createFirework(x, y, event) {
         else color = '#ffd700';
     }
     
-    // OPTIMIZED: Reduced particle counts significantly
+    // OPTIMIZED: Balanced particle counts for smooth animation
     const baseSize = Math.log10(amount + 1) * 0.4;
-    let particleCount = Math.min(Math.floor(baseSize * 5 * PARTICLE_REDUCTION), 30);
+    let particleCount = Math.min(Math.floor(baseSize * 6 * PARTICLE_REDUCTION), 50);
     
     // Special handling for the LARGEST event (the climax!)
     if (amount > 150000000) { // $150M+ (our largest is $193M)
-        particleCount = isMobile ? 60 : 100; // Epic explosion for climax!
+        particleCount = isMobile ? 80 : 120; // Epic explosion for climax!
         showEventInfo(event, true); // Show longer
     } else {
         showEventInfo(event, false);
@@ -173,6 +175,8 @@ function updateStats() {
     document.getElementById('liquidations-count').textContent = formatNumber(stats.liquidations);
     document.getElementById('adl-count').textContent = formatNumber(stats.adls);
     document.getElementById('total-volume').textContent = formatMoney(stats.totalVolume);
+    document.getElementById('liquidation-volume').textContent = formatMoney(stats.liquidationVolume);
+    document.getElementById('adl-volume').textContent = formatMoney(stats.adlVolume);
 }
 
 // Update timeline - CLICKABLE with music sync and stat recalculation
@@ -196,15 +200,20 @@ function updateTimeline(clickProgress = null) {
                 
                 // Recalculate stats up to this point
                 processedEventIndices.clear();
-                stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+                stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0, liquidationVolume: 0, adlVolume: 0 };
                 
                 for (let j = 0; j < currentEventIndex; j++) {
                     if (!processedEventIndices.has(j)) {
                         const evt = events[j];
                         stats.eventsFired++;
                         stats.totalVolume += evt.amount;
-                        if (evt.type === 'adl') stats.adls++;
-                        else stats.liquidations++;
+                        if (evt.type === 'adl') {
+                            stats.adls++;
+                            stats.adlVolume += evt.amount;
+                        } else {
+                            stats.liquidations++;
+                            stats.liquidationVolume += evt.amount;
+                        }
                         processedEventIndices.add(j);
                     }
                 }
@@ -311,7 +320,7 @@ function animate() {
             
             // OPTIMIZED: Process events in batches to reduce lag
             let eventsProcessed = 0;
-            const MAX_EVENTS_PER_FRAME = isMobile ? 5 : 10;
+            const MAX_EVENTS_PER_FRAME = isMobile ? 10 : 20;
             
             while (currentEventIndex < events.length && eventsProcessed < MAX_EVENTS_PER_FRAME) {
                 const event = events[currentEventIndex];
@@ -336,8 +345,13 @@ function animate() {
                     if (!processedEventIndices.has(currentEventIndex)) {
                         stats.eventsFired++;
                         stats.totalVolume += event.amount;
-                        if (event.type === 'adl') stats.adls++;
-                        else stats.liquidations++;
+                        if (event.type === 'adl') {
+                            stats.adls++;
+                            stats.adlVolume += event.amount;
+                        } else {
+                            stats.liquidations++;
+                            stats.liquidationVolume += event.amount;
+                        }
                         processedEventIndices.add(currentEventIndex);
                     }
                     
@@ -375,7 +389,11 @@ async function loadEvents() {
         console.log(`Loaded ${events.length} events`);
         
         const endTime = new Date(events[events.length - 1].timestamp);
-        document.getElementById('end-time').textContent = endTime.toTimeString().substring(0, 8);
+        // Format end time as UTC (HH:MM:SS)
+        const endHours = String(endTime.getUTCHours()).padStart(2, '0');
+        const endMinutes = String(endTime.getUTCMinutes()).padStart(2, '0');
+        const endSeconds = String(endTime.getUTCSeconds()).padStart(2, '0');
+        document.getElementById('end-time').textContent = `${endHours}:${endMinutes}:${endSeconds}`;
         
         // AUTO-START
         autoStart();
@@ -415,7 +433,7 @@ function startVisualization() {
         if (currentEventIndex >= events.length) {
             // Replay - PROPERLY RESET EVERYTHING
             currentEventIndex = 0;
-            stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+            stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0, liquidationVolume: 0, adlVolume: 0 };
             processedEventIndices.clear(); // Clear the set of processed events
             particles = [];
             updateStats();
@@ -475,7 +493,7 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     isPaused = false;
     currentEventIndex = 0;
     particles = [];
-    stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+    stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0, liquidationVolume: 0, adlVolume: 0 };
     processedEventIndices.clear(); // Clear processed events tracking
     updateStats();
     updateTimeline();
