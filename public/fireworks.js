@@ -236,10 +236,17 @@ function updateTimeline(clickProgress = null) {
     
     document.getElementById('timeline-progress').style.width = `${progress}%`;
     
-    // Update time display
+    // Update time display in UTC
     const currentEvent = events[currentEventIndex] || events[0];
     const currentTime = new Date(currentEvent.timestamp);
-    document.getElementById('current-time').textContent = currentTime.toTimeString().substring(0, 8);
+    
+    // Format as UTC time (HH:MM:SS)
+    const hours = String(currentTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(currentTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(currentTime.getUTCSeconds()).padStart(2, '0');
+    const utcTimeString = `${hours}:${minutes}:${seconds}`;
+    
+    document.getElementById('current-time').textContent = utcTimeString;
 }
 
 // Animation loop - OPTIMIZED with proper event tracking and error handling
