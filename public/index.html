@@ -448,6 +448,41 @@
                 font-size: 0.5em;
             }
             
+            /* Major event displays - stack vertically on mobile */
+            .major-event-display {
+                font-size: 1.4em;
+                padding: 15px 10px;
+                width: 90%;
+                left: 5%;
+                right: auto;
+            }
+            
+            #liquidation-event-display {
+                top: 30%;
+                left: 5%;
+                right: auto;
+            }
+            
+            #adl-event-display {
+                top: 50%;
+                left: 5%;
+                right: auto;
+            }
+            
+            .major-event-display .event-title {
+                font-size: 0.8em;
+                margin-bottom: 8px;
+            }
+            
+            .major-event-display .event-value {
+                font-size: 1em;
+                margin: 6px 0;
+            }
+            
+            .major-event-display .event-ticker {
+                font-size: 0.7em;
+            }
+            
             #controls {
                 bottom: 90px;
                 padding: 10px 15px;
@@ -501,6 +536,36 @@
                 max-width: 90%;
             }
             
+            /* Major event displays - smaller on very small screens */
+            .major-event-display {
+                font-size: 1.1em;
+                padding: 12px 8px;
+                width: 92%;
+                left: 4%;
+            }
+            
+            #liquidation-event-display {
+                top: 32%;
+            }
+            
+            #adl-event-display {
+                top: 48%;
+            }
+            
+            .major-event-display .event-title {
+                font-size: 0.75em;
+                margin-bottom: 6px;
+            }
+            
+            .major-event-display .event-value {
+                font-size: 0.95em;
+                margin: 5px 0;
+            }
+            
+            .major-event-display .event-ticker {
+                font-size: 0.65em;
+            }
+            
             #controls {
                 padding: 8px 12px;
                 gap: 6px;
@@ -522,8 +587,19 @@
             }
 
             #climax-marker::before {
-                font-size: 14px;
-                top: -22px;
+                font-size: 12px;
+                top: -20px;
+                padding: 1px 4px;
+            }
+
+            #adl-marker {
+                width: 3px;
+            }
+
+            #adl-marker::before {
+                font-size: 12px;
+                top: -20px;
+                padding: 1px 4px;
             }
         }
     </style>
