@@ -458,32 +458,20 @@ async function loadEvents() {
             }
         });
         
-        // Create a set of liquidation amounts+timestamps to detect counterparties
-        const liquidationKeys = new Set();
-        events.forEach(event => {
-            if (event.type !== 'adl') {
-                const key = `${Math.round(event.amount)}_${event.timestamp}`;
-                liquidationKeys.add(key);
-            }
-        });
-        
-        // Find biggest ADL that is NOT a counterparty to any liquidation
-        // (skip ADLs with same amount and timestamp as any liquidation)
+        // Find biggest ADL that happens at a DIFFERENT TIMESTAMP than the biggest liquidation
+        // This ensures visual variety on the timeline even if they're counterparties
         events.forEach((event, index) => {
             if (event.type === 'adl' && event.amount > biggestADL.amount) {
-                const key = `${Math.round(event.amount)}_${event.timestamp}`;
-                const isCounterparty = liquidationKeys.has(key);
-                
-                if (!isCounterparty) {
+                // Accept if no liquidation yet, or if different timestamp
+                if (!biggestLiquidation.event || event.timestamp !== biggestLiquidation.event.timestamp) {
                     biggestADL = { amount: event.amount, event: event, index: index };
                 }
             }
         });
         
-        // If we still haven't found an ADL (all were counterparties), just take the biggest one
-        // but log a warning
+        // If still no ADL found (shouldn't happen), take any ADL
         if (!biggestADL.event) {
-            console.warn('⚠️  All major ADLs are counterparties to liquidations. Showing largest ADL anyway.');
+            console.warn('⚠️  No ADL at different time found. Showing largest ADL.');
             events.forEach((event, index) => {
                 if (event.type === 'adl' && event.amount > biggestADL.amount) {
                     biggestADL = { amount: event.amount, event: event, index: index };
