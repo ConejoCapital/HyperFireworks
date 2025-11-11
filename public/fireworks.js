@@ -444,19 +444,29 @@ async function loadEvents() {
         });
         
         // Position the markers on the timeline
+        console.log('\n=== TIMELINE MARKERS ===');
         if (biggestLiquidation.event) {
             const liqTimestamp = new Date(biggestLiquidation.event.timestamp).getTime();
             const liqPercent = ((liqTimestamp - startTimestamp) / totalDuration) * 100;
-            document.getElementById('climax-marker').style.left = `${liqPercent}%`;
-            console.log(`Biggest Liquidation: ${formatMoney(biggestLiquidation.amount)} on ${biggestLiquidation.event.ticker} at ${liqPercent.toFixed(1)}%`);
+            const liqMarker = document.getElementById('climax-marker');
+            liqMarker.style.left = `${liqPercent}%`;
+            liqMarker.style.display = 'block';
+            console.log(`💥 Biggest Liquidation: ${formatMoney(biggestLiquidation.amount)} on ${biggestLiquidation.event.ticker} at ${liqPercent.toFixed(1)}% (${biggestLiquidation.event.timestamp})`);
+        } else {
+            console.log('💥 No liquidation found');
         }
         
         if (biggestADL.event) {
             const adlTimestamp = new Date(biggestADL.event.timestamp).getTime();
             const adlPercent = ((adlTimestamp - startTimestamp) / totalDuration) * 100;
-            document.getElementById('adl-marker').style.left = `${adlPercent}%`;
-            console.log(`Biggest ADL: ${formatMoney(biggestADL.amount)} on ${biggestADL.event.ticker} at ${adlPercent.toFixed(1)}%`);
+            const adlMarker = document.getElementById('adl-marker');
+            adlMarker.style.left = `${adlPercent}%`;
+            adlMarker.style.display = 'block';
+            console.log(`🎯 Biggest ADL: ${formatMoney(biggestADL.amount)} on ${biggestADL.event.ticker} at ${adlPercent.toFixed(1)}% (${biggestADL.event.timestamp})`);
+        } else {
+            console.log('🎯 No ADL found');
         }
+        console.log('========================\n');
         
         // AUTO-START
         autoStart();
@@ -507,6 +517,15 @@ function startVisualization() {
         isPlaying = true;
         isPaused = false;
         startTime = Date.now();
+        
+        // Calculate audio start position so biggest liquidation hits at 15:28
+        // At current playback speed, biggest event happens after (LARGEST_EVENT_DATA_TIME / playbackSpeed) real seconds
+        // We want audio to be at MUSIC_CLIMAX_TIME when that happens
+        const realTimeToClimax = LARGEST_EVENT_DATA_TIME / playbackSpeed;
+        const audioStartPosition = Math.max(0, MUSIC_CLIMAX_TIME - realTimeToClimax);
+        audio.currentTime = audioStartPosition;
+        
+        console.log(`Speed: ${playbackSpeed.toFixed(3)}x | Music starts at: ${Math.floor(audioStartPosition/60)}:${String(Math.floor(audioStartPosition%60)).padStart(2,'0')} | Climax in ${realTimeToClimax.toFixed(1)}s real time`);
         
         // Start music
         audio.play().catch(e => {

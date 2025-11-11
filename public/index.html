@@ -215,45 +215,47 @@
         #climax-marker {
             position: absolute;
             top: 0;
-            left: 22.8%; /* 164.3s / 720s = 22.8% */
-            width: 4px;
+            left: 0%; /* Will be set dynamically */
+            width: 5px;
             height: 100%;
             background: #ffd700;
-            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
-            z-index: 5;
+            box-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700;
+            z-index: 6;
             pointer-events: none;
+            display: none; /* Hidden until positioned */
         }
 
         #climax-marker::before {
             content: '💥';
             position: absolute;
-            top: -25px;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 16px;
-            text-shadow: 0 0 5px #ffd700;
+            font-size: 18px;
+            text-shadow: 0 0 8px #ffd700;
         }
         
         #adl-marker {
             position: absolute;
             top: 0;
             left: 0%; /* Will be set dynamically */
-            width: 4px;
+            width: 5px;
             height: 100%;
             background: #51cf66;
-            box-shadow: 0 0 10px #51cf66, 0 0 20px #51cf66;
+            box-shadow: 0 0 15px #51cf66, 0 0 30px #51cf66;
             z-index: 5;
             pointer-events: none;
+            display: none; /* Hidden until positioned */
         }
         
         #adl-marker::before {
             content: '🎯';
             position: absolute;
-            top: -25px;
+            top: -55px; /* Offset more so it doesn't overlap with liquidation marker if close */
             left: 50%;
             transform: translateX(-50%);
-            font-size: 16px;
-            text-shadow: 0 0 5px #51cf66;
+            font-size: 18px;
+            text-shadow: 0 0 8px #51cf66;
         }
         
         #major-event-display {
