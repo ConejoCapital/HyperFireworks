@@ -27,13 +27,14 @@ const PARTICLE_REDUCTION = isMobile ? 0.3 : 0.5; // Reduce particles by 50-70%
 // Audio element
 const audio = document.getElementById('bgmusic');
 
-// Stats
+// Stats - track which events have been counted
 let stats = {
     eventsFired: 0,
     liquidations: 0,
     adls: 0,
     totalVolume: 0
 };
+let processedEventIndices = new Set(); // Track which events we've already counted
 
 // Resize canvas
 function resizeCanvas() {
@@ -174,7 +175,7 @@ function updateStats() {
     document.getElementById('total-volume').textContent = formatMoney(stats.totalVolume);
 }
 
-// Update timeline - CLICKABLE with music sync
+// Update timeline - CLICKABLE with music sync and stat recalculation
 function updateTimeline(clickProgress = null) {
     if (!eventStartTime || events.length === 0) return;
     
@@ -192,6 +193,22 @@ function updateTimeline(clickProgress = null) {
             const eventTimestamp = new Date(events[i].timestamp).getTime();
             if (eventTimestamp >= targetTimestamp) {
                 currentEventIndex = i;
+                
+                // Recalculate stats up to this point
+                processedEventIndices.clear();
+                stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+                
+                for (let j = 0; j < currentEventIndex; j++) {
+                    if (!processedEventIndices.has(j)) {
+                        const evt = events[j];
+                        stats.eventsFired++;
+                        stats.totalVolume += evt.amount;
+                        if (evt.type === 'adl') stats.adls++;
+                        else stats.liquidations++;
+                        processedEventIndices.add(j);
+                    }
+                }
+                updateStats();
                 
                 // Calculate elapsed data time (seconds)
                 const elapsedDataTime = (eventTimestamp - startTimestamp) / 1000;
@@ -225,72 +242,101 @@ function updateTimeline(clickProgress = null) {
     document.getElementById('current-time').textContent = currentTime.toTimeString().substring(0, 8);
 }
 
-// Animation loop - OPTIMIZED
+// Animation loop - OPTIMIZED with proper event tracking and error handling
 function animate() {
-    // Clear with stronger fade for mobile
-    ctx.fillStyle = isMobile ? 'rgba(0, 4, 40, 0.15)' : 'rgba(0, 4, 40, 0.1)';
-    ctx.fillRect(0, 0, width, height);
+    // Always request next frame first to prevent freezing
+    requestAnimationFrame(animate);
     
-    // Update and draw particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const particle = particles[i];
-        particle.update();
-        particle.draw();
+    try {
+        // Clear with stronger fade for mobile
+        ctx.fillStyle = isMobile ? 'rgba(0, 4, 40, 0.15)' : 'rgba(0, 4, 40, 0.1)';
+        ctx.fillRect(0, 0, width, height);
         
-        if (particle.isDead()) {
-            particles.splice(i, 1);
+        // Update and draw particles (limit to prevent performance issues)
+        const maxParticles = isMobile ? 500 : 1000;
+        if (particles.length > maxParticles) {
+            particles.splice(0, particles.length - maxParticles);
         }
-    }
-    
-    // Fire new events
-    if (isPlaying && !isPaused) {
-        const now = Date.now();
-        const elapsed = (now - startTime) * playbackSpeed;
         
-        // OPTIMIZED: Process events in batches to reduce lag
-        let eventsProcessed = 0;
-        const MAX_EVENTS_PER_FRAME = isMobile ? 5 : 10;
-        
-        while (currentEventIndex < events.length && eventsProcessed < MAX_EVENTS_PER_FRAME) {
-            const event = events[currentEventIndex];
-            const eventTimestamp = new Date(event.timestamp).getTime();
-            const eventStartTimestamp = new Date(eventStartTime).getTime();
-            const eventOffset = eventTimestamp - eventStartTimestamp;
-            
-            if (elapsed >= eventOffset) {
-                // Fire firework at random position
-                const x = Math.random() * width;
-                const y = Math.random() * (height * 0.6) + (height * 0.1);
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const particle = particles[i];
+            if (particle && typeof particle.update === 'function') {
+                particle.update();
+                particle.draw();
                 
-                createFirework(x, y, event);
-                
-                // Update stats
-                stats.eventsFired++;
-                stats.totalVolume += event.amount;
-                if (event.type === 'adl') stats.adls++;
-                else stats.liquidations++;
-                
-                currentEventIndex++;
-                eventsProcessed++;
-            } else {
-                break;
+                if (particle.isDead()) {
+                    particles.splice(i, 1);
+                }
             }
         }
         
-        if (eventsProcessed > 0) {
-            updateStats();
+        // Fire new events
+        if (isPlaying && !isPaused && events.length > 0) {
+            const now = Date.now();
+            const elapsed = (now - startTime) * playbackSpeed;
+            
+            // Safety check
+            if (!isFinite(elapsed) || elapsed < 0) {
+                console.warn('Invalid elapsed time, resetting startTime');
+                startTime = Date.now();
+                return;
+            }
+            
+            // OPTIMIZED: Process events in batches to reduce lag
+            let eventsProcessed = 0;
+            const MAX_EVENTS_PER_FRAME = isMobile ? 5 : 10;
+            
+            while (currentEventIndex < events.length && eventsProcessed < MAX_EVENTS_PER_FRAME) {
+                const event = events[currentEventIndex];
+                if (!event || !event.timestamp) {
+                    console.warn(`Invalid event at index ${currentEventIndex}`);
+                    currentEventIndex++;
+                    continue;
+                }
+                
+                const eventTimestamp = new Date(event.timestamp).getTime();
+                const eventStartTimestamp = new Date(eventStartTime).getTime();
+                const eventOffset = eventTimestamp - eventStartTimestamp;
+                
+                if (elapsed >= eventOffset) {
+                    // Fire firework at random position
+                    const x = Math.random() * width;
+                    const y = Math.random() * (height * 0.6) + (height * 0.1);
+                    
+                    createFirework(x, y, event);
+                    
+                    // Update stats ONLY if this event hasn't been counted yet
+                    if (!processedEventIndices.has(currentEventIndex)) {
+                        stats.eventsFired++;
+                        stats.totalVolume += event.amount;
+                        if (event.type === 'adl') stats.adls++;
+                        else stats.liquidations++;
+                        processedEventIndices.add(currentEventIndex);
+                    }
+                    
+                    currentEventIndex++;
+                    eventsProcessed++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (eventsProcessed > 0) {
+                updateStats();
+            }
+            
+            updateTimeline();
+            
+            // Check if animation is complete
+            if (currentEventIndex >= events.length) {
+                isPlaying = false;
+                document.getElementById('start-btn').textContent = '🔄 Replay';
+            }
         }
-        
-        updateTimeline();
-        
-        // Check if animation is complete
-        if (currentEventIndex >= events.length) {
-            isPlaying = false;
-            document.getElementById('start-btn').textContent = '🔄 Replay';
-        }
+    } catch (error) {
+        console.error('Animation error:', error);
+        // Continue animating even if there's an error
     }
-    
-    requestAnimationFrame(animate);
 }
 
 // Load events
@@ -340,9 +386,10 @@ function autoStart() {
 function startVisualization() {
     if (!isPlaying) {
         if (currentEventIndex >= events.length) {
-            // Replay
+            // Replay - PROPERLY RESET EVERYTHING
             currentEventIndex = 0;
             stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+            processedEventIndices.clear(); // Clear the set of processed events
             particles = [];
             updateStats();
             audio.currentTime = 0;
@@ -402,6 +449,7 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     currentEventIndex = 0;
     particles = [];
     stats = { eventsFired: 0, liquidations: 0, adls: 0, totalVolume: 0 };
+    processedEventIndices.clear(); // Clear processed events tracking
     updateStats();
     updateTimeline();
     audio.pause();
@@ -413,7 +461,18 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 document.getElementById('speed-btn').addEventListener('click', () => {
     const speeds = [SYNC_SPEED, SYNC_SPEED * 2, SYNC_SPEED * 5, SYNC_SPEED * 10];
     const labels = ['1x (Synced)', '2x', '5x', '10x'];
-    const currentIndex = speeds.indexOf(playbackSpeed);
+    
+    // Find closest speed to current playback speed
+    let currentIndex = 0;
+    let minDiff = Math.abs(playbackSpeed - speeds[0]);
+    for (let i = 1; i < speeds.length; i++) {
+        const diff = Math.abs(playbackSpeed - speeds[i]);
+        if (diff < minDiff) {
+            minDiff = diff;
+            currentIndex = i;
+        }
+    }
+    
     const nextIndex = (currentIndex + 1) % speeds.length;
     playbackSpeed = speeds[nextIndex];
     
@@ -421,8 +480,10 @@ document.getElementById('speed-btn').addEventListener('click', () => {
     document.getElementById('speed-display').textContent = labels[nextIndex];
     
     if (isPlaying && !isPaused) {
-        const elapsed = (Date.now() - startTime) * playbackSpeed;
-        startTime = Date.now();
+        // Recalculate startTime to maintain position when changing speed
+        const now = Date.now();
+        const elapsedRealTime = now - startTime;
+        startTime = now - (elapsedRealTime * playbackSpeed / speeds[currentIndex]);
     }
 });
 
@@ -430,6 +491,12 @@ document.getElementById('speed-btn').addEventListener('click', () => {
 loadEvents().then(() => {
     animate();
     updateStats();
+    // Set initial speed display
+    document.getElementById('speed-btn').textContent = '⚡ 1x (Synced)';
+    document.getElementById('speed-display').textContent = '1x (Synced)';
+}).catch(error => {
+    console.error('Failed to load events:', error);
+    alert('Failed to load event data. Please refresh the page.');
 });
 
 // Audio loop
