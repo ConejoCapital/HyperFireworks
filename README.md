@@ -131,6 +131,52 @@ Same timestamp, but ORDERED execution!
 
 ---
 
+## 🎯 NEW: Understanding ADL Prioritization
+
+**📄 Full Analysis: [ADL_PRIORITIZATION_VERIFIED.md](https://github.com/ConejoCapital/HyperMultiAssetedADL/blob/main/ADL_PRIORITIZATION_VERIFIED.md)**
+
+### ⚠️ ADL Targets PROFIT, Not Leverage!
+
+When you watch the green ADL fireworks, you're witnessing **profitable traders being forced to exit**. This is counterintuitive but proven by clearinghouse data:
+
+| What People Think | Reality (Proven) |
+|-------------------|------------------|
+| ❌ ADL targets high leverage | ✅ ADL targets high PROFIT |
+| ❌ Low leverage = Safe | ✅ High profit = Target |
+
+### The Numbers
+
+From analyzing **31,444 ADL events** with complete account data:
+
+| Metric | Value |
+|--------|-------|
+| **Profitable positions ADL'd** | **98.3%** |
+| **Average unrealized PNL** | **+82.43%** |
+| **Average leverage** | **1.16x** (LOW!) |
+
+**Translation**: Almost every green firework you see was someone with a HUGE unrealized gain getting forcibly exited.
+
+### Why This Happens
+
+1. **Liquidations occur** (red fireworks) - traders lose money
+2. **Protocol needs counterparties** to close these positions
+3. **Protocol targets the MOST PROFITABLE** opposing positions
+4. **Forces them to exit** (green fireworks) - winners pay for losers
+
+**Example from the visualization:**
+- **$193M BTC position** (the biggest firework) = **+12.73% profit**, 6.3x leverage
+- **$174M ETH position** = **+21.84% profit**, 5.6x leverage
+- Both were ADL'd because of **profit**, not leverage
+
+### What You're Actually Watching
+
+🟢 **Green fireworks** = Winners getting kicked out  
+🔴 **Red ADL fireworks** = Losers getting kicked out (rare - only 1.7%)
+
+**The cascade is forcing the most profitable traders to subsidize the liquidated traders.**
+
+---
+
 ## 🎨 Firework Color Legend
 
 ### ADL Events
